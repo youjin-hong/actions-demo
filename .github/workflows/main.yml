@@ -1,0 +1,39 @@
+name: Unit Test & Lighthouse CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout code
+      uses : actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Configure npm registry
+      run: |
+        echo "Configuring npm to use public registry"
+        npm config set registry https://registry.npmjs.org/
+
+    - name: Clear npm cache
+      run: npm cache clean --force
+
+    - name: Remove package-lock.json
+      run: rm -f package-lock.json
+
+    - name: Install dependencies
+      run: npm install --registry=https://registry.npmjs.org/
+      env:
+        NODE_AUTH_TOKEN: ''
+
+    - name: Run tests
+      run: npm test
